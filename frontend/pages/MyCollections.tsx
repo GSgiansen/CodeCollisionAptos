@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
 // Internal components
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LaunchpadHeader } from "@/components/LaunchpadHeader";
+import { Header } from "@/components/Header";
 import { Image } from "@/components/ui/image";
 // Internal hooks
 import { useGetCollections } from "@/hooks/useGetCollections";
@@ -26,7 +26,7 @@ export function MyCollections() {
 
   return (
     <>
-      <LaunchpadHeader title="My Concerts" />
+      <Header/>
       <Table className="max-w-screen-xl mx-auto">
         {!collections.length && (
           <TableCaption>A list of the concerts created under the current contract.</TableCaption>

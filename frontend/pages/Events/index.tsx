@@ -52,7 +52,7 @@ export function Events() {
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 max-w-screen-xl mx-auto w-full flex-wrap">
+    <div className="flex items-center justify-between px-4 max-w-screen-xl mx-auto w-full flex-wrap">
       <Header/>
       <div className="flex justify-center p-4">
         <input

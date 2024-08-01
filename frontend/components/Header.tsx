@@ -1,37 +1,32 @@
-import { useGetCollectionData } from "@/hooks/useGetCollectionData";
-import { useMemo } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { WalletSelector } from "./WalletSelector";
 import { IS_DEV } from "@/constants";
-import { buttonVariants } from "@/components/ui/button";
-import { config } from "@/config";
+import Sidebar from "./Sidebar";
 
 export function Header() {
-  const { data } = useGetCollectionData();
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  // const title = useMemo(() => {
-  //   return data?.collection.collection_name ?? config.defaultCollection?.name ?? "NFT Collection Launchpad";
-  // }, [data?.collection]);
-    const title = "Aptos Ticket Master"
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="flex items-center justify-between px-4 py-2 max-w-screen-xl mx-auto w-full flex-wrap">
-      <h1 className="display">
-        <Link to="/">{title}</Link>
-      </h1>
-
-      <div className="flex gap-2 items-center flex-wrap">
-        {IS_DEV && (
-          <>
-            <Link className={buttonVariants({ variant: "link" })} to={"/my-collections"}>
-              My Concerts
-            </Link>
-            <Link className={buttonVariants({ variant: "link" })} to={"/create-collection"}>
-              Create Concert
-            </Link>
-          </>
-        )}
-        <WalletSelector />
+    <>
+      <div className="bg-techno-header">
+        <div className="header-container flex items-center px-4 py-2 max-w-screen-xl mx-auto w-full">
+          <button
+            className="header-sidebar-btn"
+            onClick={toggleSidebar}
+          >
+            ☰
+          </button>
+          <h1 className="display flex-grow mx-4">
+            <Link to="/">Aptos Ticket Master</Link>
+          </h1>
+        </div>
       </div>
-    </div>
+      {isSidebarOpen && <Sidebar onClose={toggleSidebar} />}
+    </>
   );
 }

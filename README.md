@@ -42,7 +42,7 @@ VITE_MODULE_ADDRESS=
 VITE_MASTER_ACCOUNTS=
 ```
 
-3. Run the commands `npm move:init` and `npm move:publish`
+3. Run the commands `npm run move:init` and `npm run move:publish`
 4. Run the command `npm run dev` to see Aptos Ticket Master!
 
 

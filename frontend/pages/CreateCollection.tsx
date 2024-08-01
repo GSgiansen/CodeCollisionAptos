@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { LaunchpadHeader } from "@/components/LaunchpadHeader";
+import { Header } from "@/components/Header";
 import { CREATOR_ADDRESS } from "@/constants";
 import { WarningAlert } from "@/components/ui/warning-alert";
 import { UploadSpinner } from "@/components/UploadSpinner";
@@ -190,7 +190,8 @@ export function CreateCollection() {
       {isWalletAccountEqual? 
       (
 
-      <><LaunchpadHeader title="Concert Event Creation" /><div className="flex flex-col md:flex-row items-start justify-between px-4 py-2 gap-4 max-w-screen-xl mx-auto">
+      <><Header/>
+        <div className="flex flex-col md:flex-row items-start justify-between px-4 py-2 gap-4 max-w-screen-xl mx-auto">
             <div className="w-full md:w-2/3 flex flex-col gap-y-4 order-2 md:order-1">
               {(!account || account.address !== CREATOR_ADDRESS) && (
                 <WarningAlert title={account ? "Wrong account connected" : "No account connected"}>

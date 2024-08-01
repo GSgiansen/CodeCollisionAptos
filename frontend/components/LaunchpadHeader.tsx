@@ -1,36 +1,52 @@
+import { FC, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FC } from "react";
-
 import { WalletSelector } from "@/components/WalletSelector";
 import { buttonVariants } from "@/components/ui/button";
+import Sidebar from "./Sidebar";
 
 interface LaunchpadHeaderProps {
   title: string;
 }
 
 export const LaunchpadHeader: FC<LaunchpadHeaderProps> = ({ title }) => {
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="flex items-center justify-between py-2 px-4 mx-auto w-full max-w-screen-xl flex-wrap">
-      <h2 className="display">{title}</h2>
-
-      <div className="flex gap-2 items-center">
-        <Link className={buttonVariants({ variant: "link" })} to={"/"}>
-          Mint Page
-        </Link>
-        {location.pathname === "/create-collection" ? (
-          <Link className={buttonVariants({ variant: "link" })} to={"/my-collections"}>
-            My Concerts
-          </Link>
-        ) : (
-          <Link className={buttonVariants({ variant: "link" })} to={"/create-collection"}>
-            Create Concert
-          </Link>
-        )}
-
-        <WalletSelector />
+    <>
+      <div className="bg-techno-header">
+        <div className="header-container flex items-center justify-between px-4 py-2 max-w-screen-xl mx-auto w-full flex-wrap">
+          <button
+            className="header-sidebar-btn"
+            onClick={toggleSidebar}
+          >
+            ☰
+          </button>
+          <h1 className="display flex-grow mx-4">
+            {title}
+          </h1>
+          <div className="flex gap-2 items-center flex-wrap">
+            <Link className="header-link" to={"/"}>
+              Home
+            </Link>
+            {location.pathname === "/create-collection" ? (
+              <Link className="header-link" to={"/my-collections"}>
+                My Concerts
+              </Link>
+            ) : (
+            <Link className="header-link" to={"/create-collection"}>
+              Create Concert
+            </Link>
+          )}
+            <WalletSelector />
+          </div>
+        </div>
       </div>
-    </div>
+      {isSidebarOpen && <Sidebar onClose={toggleSidebar} />}
+    </>
   );
 };
