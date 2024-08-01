@@ -53,7 +53,7 @@ export function WalletSelector() {
   return connected ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>Account</Button>
+        <Button>Wallet Connected</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="dropdown-content-left">
         <DropdownMenuItem onSelect={copyAddress} className="gap-2">
