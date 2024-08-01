@@ -190,4 +190,16 @@
     color: white;
     margin: 0 auto;
   }
+
+  .dropdown-content-left {
+    /* Position the dropdown content to the left of the button */
+    margin-left: -8px; /* Adjust as needed */
+    margin-right: 0;
+    left: auto; /* Align left edge of dropdown to the right edge of button */
+    right: 100%; /* Make sure it opens to the left of the trigger button */
+    top: 100%; /* Align dropdown below the button */
+    transform: translateX(-100%); /* Shift the dropdown to the left of its natural position */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional shadow for visibility */
+    z-index: 1050; /* Ensure dropdown is above other elements */
+  }
 }
