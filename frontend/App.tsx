@@ -5,6 +5,7 @@ import { MyCollections } from "@/pages/MyCollections";
 import { Events } from "./pages/Events";
 import EventDetail from "./pages/Events/EventDetail";
 import { Tickets } from "./pages/Tickets";
+import Marketplace from "./pages/Marketplace";
 
 function Layout() {
   return (
@@ -47,6 +48,10 @@ function App() {
               {
                 path: "tickets",
                 element: <Tickets />,
+              },
+              {
+                path:"marketplace",
+                element: <Marketplace />,
               }
             ],
           },
