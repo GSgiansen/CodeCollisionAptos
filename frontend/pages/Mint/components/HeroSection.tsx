@@ -23,18 +23,16 @@ import { Socials } from "@/pages/Mint/components/Socials";
 import { NETWORK } from "@/constants";
 // Internal config
 import { config } from "@/config";
-// Internal enrty functions
+// Internal entry functions
 import { mintNFT } from "@/entry-functions/mint_nft";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface HeroSectionProps {
-  page ?: string;
+  id?: string;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({page}) => {
-  const addr = page == "1" ? "0x6746cf4de7cd2237c050d41560169a76249161dd71d8f245e335f32321eec4d4" : "0xafda23f742a9fb71ec5cdf5c56ccb42c9c7a4942c1d50a1fe3f7c28c3db93a27"
-  // console.log(addr)
-  const { data } = useGetCollectionData(addr);
-  // console.log(data)
+export const HeroSection: React.FC<HeroSectionProps> = ({ id }) => {
+  const { data, isLoading } = useGetCollectionData(id);
   const queryClient = useQueryClient();
   const { account, signAndSubmitTransaction } = useWallet();
   const [nftCount, setNftCount] = useState(1);
@@ -55,19 +53,27 @@ export const HeroSection: React.FC<HeroSectionProps> = ({page}) => {
   };
 
   const description = collection?.description ?? config.defaultCollection?.description;
-
-  // Split the description into lines
   const lines = description.split('\n').filter(line => line.trim() !== '');
 
+  // Conditional Rendering
+  if (isLoading) {
+    return <LoadingSpinner className={undefined} />;
+  }
+
   return (
+    <>
+        <Button className="h-16 md:h-auto m-5" onClick={() => window.history.back()}>
+        Back  
+      </Button>
     <section className="hero-container flex flex-col md:flex-row gap-6 px-4 max-w-screen-xl mx-auto w-full">
+
       <Image
         src={collection?.cdn_asset_uris.cdn_image_uri ?? collection?.cdn_asset_uris.cdn_animation_uri ?? Placeholder1}
         rounded
         style={{
-          width: '300px', // Fixed width
-          height: '300px', // Fixed height
-          objectFit: 'contain', // Maintain aspect ratio and contain within the dimensions
+          width: '300px',
+          height: '300px',
+          objectFit: 'contain',
         }}
         className="w-full md:basis-2/5 aspect-square object-cover self-center"
       />
@@ -76,11 +82,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({page}) => {
         {/* <Socials /> */}
         <div>
           {lines.map((line, index) => {
-            // Split each line into header and content using the first occurrence of ':'
             const [header, ...content] = line.split(':');
             const contentString = content.join(':').trim();
-
-            // Only render if both header and content are not empty
             if (header.trim() && contentString) {
               return (
                 <p key={index} className="body-sm">
@@ -88,8 +91,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({page}) => {
                 </p>
               );
             }
-
-            return null; // Don't render if either header or content is missing
+            return null;
           })}
         </div>
 
@@ -153,8 +155,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({page}) => {
         </div>
       </div>
     </section>
+    </>
   );
 };
+
 
 const AddressButton: FC<{ address: string }> = ({ address }) => {
   const [copied, setCopied] = useState(false);

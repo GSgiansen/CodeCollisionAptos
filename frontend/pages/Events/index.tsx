@@ -4,9 +4,8 @@ import { addDays, format, isAfter, isBefore } from "date-fns";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
-import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
-import {CAS, TS_ERA} from "./EventType";
+import { CAS, TS_ERA } from "./EventType";
 import { ConnectWalletAlert } from "../Mint/components/ConnectWalletAlert";
 import { BannerSection } from "../Mint/components/BannerSection";
 import { FAQSection } from "../Mint/components/FAQSection";
@@ -16,16 +15,49 @@ import { OurStorySection } from "../Mint/components/OurStorySection";
 import { OurTeamSection } from "../Mint/components/OurTeamSection";
 import { StatsSection } from "../Mint/components/StatsSection";
 
+import { Link, useNavigate } from "react-router-dom";
+import { GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
+// Internal components
+// Internal hooks
+import { useGetCollections } from "@/hooks/useGetCollections";
+// Internal constants
+import { NETWORK, COLLECTION_ADDRESS } from "@/constants";
+
 export function Events() {
+  const collections: Array<GetCollectionDataResponse> = useGetCollections();
+
+  // If we are on Production mode, redierct to the mint page
+  const navigate = useNavigate();
+  if (import.meta.env.PROD) navigate("/", { replace: true });
+
+  const handleCollectionClick = (collectionId: string) => {
+    // Here you set the collection address in your env file
+    localStorage.setItem(COLLECTION_ADDRESS, collectionId);
+
+    // Navigate to the explorer URL with a full page reload
+    window.location.href = "/";
+  };
+
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(),
     to: addDays(new Date(), 20),
   });
   const [filter, setFilter] = useState<string>("");
 
-  const events = [
-    CAS, TS_ERA
-  ];
+  // const events = [
+  //   CAS, TS_ERA
+  // ];
+  // convert events page to use the collections from the collections
+
+  const events = collections.map((collection) => {
+    return {
+      id: collection.collection_id,
+      name: collection.collection_name,
+      image_uri: collection.cdn_asset_uris.cdn_image_uri,
+      eventUnixTime: 1723099309,
+    };
+  });
+
   const filteredEvents = events.filter((event) => {
     const eventDate = new Date(event.eventUnixTime * 1000);
     const isWithinDateRange =
@@ -53,7 +85,7 @@ export function Events() {
 
   return (
     <div className="flex items-center justify-between px-4 max-w-screen-xl mx-auto w-full flex-wrap">
-      <Header/>
+      <Header />
       <div className="flex justify-center p-4">
         <input
           type="text"
@@ -63,7 +95,7 @@ export function Events() {
           className="mb-4 p-2 border border-gray-300 rounded"
         />
       </div>
-      <DatePickerWithRange date={date} setDate={setDate} className="p-4"/>
+      <DatePickerWithRange date={date} setDate={setDate} className="p-4" />
       <motion.div
         initial="hidden"
         animate="visible"
@@ -72,7 +104,11 @@ export function Events() {
       >
         {filteredEvents.map((event) => (
           <motion.div key={event.id} variants={itemVariants}>
-            <Link to={`/${event.id}`} className="block p-4" >
+            <Link
+              to={`events/${event.id}`}
+              state={{ event }} // Pass event data via state
+              className="block p-4"
+            >
               <Card className="flex flex-row gap-4 p-4 items-center hover:bg-gray-100 transition-colors duration-200">
                 <img src={event.image_uri} alt={event.name} className="w-64 h-64 object-cover rounded-lg" />
                 <div className="text-4xl font-bold text-gray-700">
@@ -87,7 +123,6 @@ export function Events() {
           </motion.div>
         ))}
       </motion.div>
-        
     </div>
   );
 }

@@ -9,8 +9,9 @@ export function getCollectionId(): string | null {
 }
 
 export const config: Config = {
-  // **TODO**: Fill in your collection id
-  collection_id: "0xa7dd2737087f69ec9beedaa0fcd73f06b1cdcc9fee4a9507bdd363191beae49a",
+  // Collection_id IS NOT IMPORTANT, DO NOT CHANGE BELOW AS ITS USELESS
+
+  collection_id: "0xeb801d451a3a6d390aac6e356cee6bec44392de6ff8b77ceeb710f255d19d86b",
 
   // Removing one or all of these socials will remove them from the page
   socials: {
