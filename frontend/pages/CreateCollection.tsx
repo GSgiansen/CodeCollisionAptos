@@ -49,6 +49,8 @@ export function CreateCollection() {
   const [publicMintEndTime, setPublicMintEndTime] = useState<string>();
   const [publicMintLimitPerAccount, setPublicMintLimitPerAccount] = useState<number>(1);
   const [publicMintFeePerNFT, setPublicMintFeePerNFT] = useState<number>();
+  const [allowListMintStartDate, setAllowListMintStartDate] = useState<Date>();
+  const [allowListMintStartTime, setAllowListMintStartTime] = useState<string>();
   const [files, setFiles] = useState<FileList | null>(null);
 
   // Internal state
@@ -148,6 +150,9 @@ export function CreateCollection() {
         Pricing: ${pricing} APT
       `.trim();
 
+      const allowListStartDate = new Date(showDate!.getTime() - 60 * 60 * 1000); // 1 hour before show time
+      const allowListEndDate = new Date(showDate!.getTime() + 3 * 60 * 60 * 1000); // 3 hours after show time
+
       // Submit a create_collection entry function transaction
       const response = await signAndSubmitTransaction(
         createCollection({
@@ -174,8 +179,35 @@ export function CreateCollection() {
         transactionHash: response.hash,
       });
 
+      const stubName = collectionName + " - Stub";
+
+      const stubResponse = await signAndSubmitTransaction(
+        createCollection({
+          collectionDescription,
+          collectionName: stubName,
+          projectUri,
+          maxSupply,
+          royaltyPercentage,
+          preMintAmount,
+          allowList: undefined,
+          allowListStartDate: undefined,
+          allowListEndDate: undefined,
+          allowListLimitPerAccount: undefined,
+          allowListFeePerNFT: undefined,
+          publicMintStartDate: allowListStartDate,
+          publicMintEndDate: allowListEndDate,
+          publicMintLimitPerAccount,
+          publicMintFeePerNFT: 0,
+        }),
+      );
+
+      // Wait for the transaction to be commited to chain
+      const committedTransactionStubResponse = await aptosClient().waitForTransaction({
+        transactionHash: stubResponse.hash,
+      });
+
       // Once the transaction has been successfully commited to chain, navigate to the `my-collection` page
-      if (committedTransactionResponse.success) {
+      if (committedTransactionResponse.success && committedTransactionStubResponse.success) {
         navigate(`/my-collections`, { replace: true });
       }
     } catch (error) {
