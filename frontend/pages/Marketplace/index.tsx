@@ -13,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./listingTable/data-table";
 import { columns, MarketplaceTicket } from "./listingTable/columns";
+import BuyPage from "./BuyPage";
+import SellPage from "./SellPage";
 
 type Concert = {
   name: string;
@@ -243,6 +245,8 @@ const Marketplace = () => {
           <DataTable columns={columns} data={filteredTickets} />
         </div>
       </div>
+      <BuyPage />
+      <SellPage />
     </>
   );
 };
