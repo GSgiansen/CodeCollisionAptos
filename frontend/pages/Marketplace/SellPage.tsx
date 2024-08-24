@@ -77,6 +77,7 @@ function TicketCard(ticket: Ticket, wallet: WalletContextState) {
 }
 
 const getTickets = async (wallet: WalletContextState) => {
+    console.log("wallet", wallet);
     const tokens = await aptosClient().getOwnedDigitalAssets({
         ownerAddress: wallet.account!.address,
     });

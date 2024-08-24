@@ -5,3 +5,4 @@ export const IS_DEV = Boolean(import.meta.env.DEV);
 export const VITE_MASTER_ACCOUNTS = import.meta.env.VITE_MASTER_ACCOUNTS;
 export const masterAccounts: string[] = VITE_MASTER_ACCOUNTS.split(',');
 export const COLLECTION_ADDRESS = "";
+export const PRIVATEKEY = import.meta.env.VITE_PRIVATEKEY;
