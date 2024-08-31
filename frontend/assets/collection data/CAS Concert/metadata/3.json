@@ -1,5 +1,11 @@
 {
     "image": "to_fill_after_upload",
     "name": "Ticket ID 03",
-    "external_url": "https://your_project_url.io/3"
+    "external_url": "https://your_project_url.io/3",
+    "attributes": [
+        {
+          "trait_type": "date",
+          "value": "31 Aug 2024"
+        }
+    ]
 }
