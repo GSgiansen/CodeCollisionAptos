@@ -14,6 +14,7 @@ import { HowToMintSection } from "../Mint/components/HowToMintSection";
 import { OurStorySection } from "../Mint/components/OurStorySection";
 import { OurTeamSection } from "../Mint/components/OurTeamSection";
 import { StatsSection } from "../Mint/components/StatsSection";
+import { MarqueeDemo } from "../../components/HomePage/marquee";
 
 import { Link, useNavigate } from "react-router-dom";
 import { GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
@@ -57,7 +58,32 @@ export function Events() {
       eventUnixTime: 1723099309,
     };
   });
-
+  const reviews = [
+    {
+      title: "Pig",
+      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-02/pig0924%20horizontal.jpg?w=248&fit=crop&auto=format",
+    },
+    {
+      title: "Jane",
+      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/Featured%20Events%20Banner%20-%20436%20x%20326_1.png?w=248&fit=crop&auto=format",
+    },
+    {
+      title: "Tom",
+      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-06/RELEASE%201%20-%20436x326%20-%20SISTIC%20-%20TKK150%20-%20resize.jpg?w=248&fit=crop&auto=format",
+    },
+    {
+      title: "Spongebob",
+      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/Jane-MBS19-SISTIC-landscape-436x326.jpg?w=248&fit=crop&auto=format",
+    },
+    {
+      title: "Inside Out",
+      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-06/evan1024_V1-436x326.jpg?w=248&fit=crop&auto=format",
+    },
+    {
+      title: "Haha",
+      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/436x326%20resized.png?w=248&fit=crop&auto=format",
+    },
+  ];
   const filteredEvents = events.filter((event) => {
     const eventDate = new Date(event.eventUnixTime * 1000);
     const isWithinDateRange =
@@ -86,6 +112,20 @@ export function Events() {
   return (
     <div className="flex items-center justify-between px-4 max-w-screen-xl mx-auto w-full flex-wrap">
       <Header />
+      <MarqueeDemo />
+      <div className="bg-blue-500 p-8 w-full">
+        <h1 className="text-2xl font-bold text-white">Upcoming Concerts</h1>
+        <br />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {reviews.map((card) => (
+            <div key={card.title} className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
+              <img src={card.img} alt={card.title} className="h-32 w-32 object-cover rounded-md mb-4" />
+              <h3 className="text-lg font-medium text-center">{card.title}</h3>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="flex justify-center p-4">
         <input
           type="text"
