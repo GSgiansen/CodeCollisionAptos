@@ -39,9 +39,9 @@ export default function DistributorCreateConcert() {
   };
 
   return (
-    <>
+    <div className="flex-col items-center justify-between px-4 max-w-screen-xl mx-auto w-full flex-wrap">
       <Header />
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)}>
         {/* Concert Name Field */}
         <div>
           <label>Concert Name</label>
@@ -137,6 +137,6 @@ export default function DistributorCreateConcert() {
           Create Concert
         </Button>
       </form>
-    </>
+    </div>
   );
 }
