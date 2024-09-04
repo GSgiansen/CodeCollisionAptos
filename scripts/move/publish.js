@@ -28,6 +28,7 @@ async function publish() {
         minter: "0x3c41ff6b5845e0094e19888cba63773591be9de59cafa9e582386f6af15dd490",
       },
       profile: `${process.env.PROJECT_NAME}-${process.env.VITE_APP_NETWORK}`,
+      extraArguments: ["--skip-fetch-latest-git-deps"]
     })
     .then((objectAddress) => {
       const filePath = ".env";
