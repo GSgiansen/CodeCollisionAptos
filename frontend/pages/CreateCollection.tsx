@@ -70,10 +70,6 @@ export function CreateCollection() {
     }
   }, [account]);
 
-  // Rest of the code...
-
-
-
   // Local Ref
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -407,16 +403,6 @@ export function CreateCollection() {
                   </ol>
                   <p>In the case we need to fund a node on Irys, a transfer transaction submission is required also.</p>
                 </>} />
-            </div>
-            <div className="w-full md:w-1/3 order-1 md:order-2">
-              <Card>
-                <CardHeader className="body-md-semibold">Learn More</CardHeader>
-                <CardContent>
-                  <Link to="https://aptos.dev/standards/digital-asset" className="body-sm underline" target="_blank">
-                    Find out more about Digital Assets on Aptos
-                  </Link>
-                </CardContent>
-              </Card>
             </div>
           </div></>) 
       : (<div>Only the master account can create a concert event</div>)}
