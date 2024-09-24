@@ -1,35 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Marquee from "../magicui/marquee";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
+import { useGetCollections } from "@/hooks/useGetCollections";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-const reviews = [
-  {
-    img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-02/pig0924%20horizontal.jpg?w=248&fit=crop&auto=format",
-  },
-  {
-    img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/Featured%20Events%20Banner%20-%20436%20x%20326_1.png?w=248&fit=crop&auto=format",
-  },
-  {
-    img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-06/RELEASE%201%20-%20436x326%20-%20SISTIC%20-%20TKK150%20-%20resize.jpg?w=248&fit=crop&auto=format",
-  },
-  {
-    img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/Jane-MBS19-SISTIC-landscape-436x326.jpg?w=248&fit=crop&auto=format",
-  },
-  {
-    img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-06/evan1024_V1-436x326.jpg?w=248&fit=crop&auto=format",
-  },
-  {
-    img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/436x326%20resized.png?w=248&fit=crop&auto=format",
-  },
-];
-
-const firstRow = reviews.slice(0, reviews.length / 2);
-const secondRow = reviews.slice(reviews.length / 2);
 
 const ReviewCard = ({ img }: { img: string }) => {
   return (
@@ -53,16 +31,32 @@ const ReviewCard = ({ img }: { img: string }) => {
 };
 
 export function MarqueeDemo() {
+  const [collections, setCollections] = useState<GetCollectionDataResponse[] | null>(null);
+  const data = useGetCollections();
+
+  useEffect(() => {
+    if (data) {
+      setCollections(data);
+    }
+  }, [data]);
+
+  if (!collections) {
+    return <div>Loading...</div>; // or any loading indicator
+  }
+
+  const firstRow = collections.slice(0, collections.length / 2);
+  const secondRow = collections.slice(collections.length / 2);
+
   return (
     <div className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background md:shadow-xl">
-      <Marquee pauseOnHover className="[--duration:20s]">
+      <Marquee pauseOnHover className="[--duration:30s]">
         {firstRow.map((review) => (
-          <ReviewCard key={review.img} {...review} />
+          <ReviewCard img={review.cdn_asset_uris.cdn_image_uri} key={review.collection_id} {...review} />
         ))}
       </Marquee>
-      <Marquee reverse pauseOnHover className="[--duration:20s]">
+      <Marquee reverse pauseOnHover className="[--duration:30s]">
         {secondRow.map((review) => (
-          <ReviewCard key={review.img} {...review} />
+          <ReviewCard img={review.cdn_asset_uris.cdn_image_uri} key={review.collection_id} {...review} />
         ))}
       </Marquee>
       <div className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white dark:from-background"></div>

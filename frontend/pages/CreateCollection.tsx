@@ -29,17 +29,6 @@ export function CreateCollection() {
   const aptosWallet = useWallet();
   const { account, signAndSubmitTransaction } = useWallet();
 
-  const updateMapping = async (collection_address: string, stub_address: string) => {
-    const { data, error } = await supabase.from("collection_address").insert({
-      collection_address: collection_address,
-      stub_address: stub_address,
-    });
-
-    if (error) {
-      console.error(error);
-    }
-  };
-
   // If we are on Production mode, redierct to the public mint page
   const navigate = useNavigate();
   if (import.meta.env.PROD) navigate("/", { replace: true });
@@ -179,46 +168,51 @@ export function CreateCollection() {
         transactionHash: response.hash,
       });
 
-      const stubName = collectionName + " - Stub";
+      // const stubName = collectionName + " - Stub";
 
-      const stubResponse = await signAndSubmitTransaction(
-        createCollection({
-          collectionDescription,
-          collectionName: stubName,
-          projectUri,
-          maxSupply,
-          royaltyPercentage,
-          preMintAmount,
-          allowList: undefined,
-          allowListStartDate: undefined,
-          allowListEndDate: undefined,
-          allowListLimitPerAccount: undefined,
-          allowListFeePerNFT: undefined,
-          publicMintStartDate: allowListStartDate,
-          publicMintEndDate: allowListEndDate,
-          publicMintLimitPerAccount,
-          publicMintFeePerNFT: 0,
-        }),
-      );
+      // const stubResponse = await signAndSubmitTransaction(
+      //   createCollection({
+      //     collectionDescription,
+      //     collectionName: stubName,
+      //     projectUri,
+      //     maxSupply,
+      //     royaltyPercentage,
+      //     preMintAmount,
+      //     allowList: undefined,
+      //     allowListStartDate: undefined,
+      //     allowListEndDate: undefined,
+      //     allowListLimitPerAccount: undefined,
+      //     allowListFeePerNFT: undefined,
+      //     publicMintStartDate: allowListStartDate,
+      //     publicMintEndDate: allowListEndDate,
+      //     publicMintLimitPerAccount,
+      //     publicMintFeePerNFT: 0,
+      //   }),
+      // );
 
-      // Wait for the transaction to be commited to chain
-      const committedTransactionStubResponse = await aptosClient().waitForTransaction({
-        transactionHash: stubResponse.hash,
-      });
+      // // Wait for the transaction to be commited to chain
+      // const committedTransactionStubResponse = await aptosClient().waitForTransaction({
+      //   transactionHash: stubResponse.hash,
+      // });
 
       console.log(committedTransactionResponse);
-      console.log(committedTransactionStubResponse);
+      // console.log(committedTransactionStubResponse);
 
       //update mapping
-      await updateMapping(
-        committedTransactionResponse.events[3].data.collection_obj.inner,
-        committedTransactionStubResponse.events[3].data.collection_obj.inner,
-      );
+      // await updateMapping(
+      //   committedTransactionResponse.events[3].data.collection_obj.inner,
+      //   committedTransactionStubResponse.events[3].data.collection_obj.inner,
+      // );
+
+      await supabase.from("collection_address").insert({
+        collection_address: committedTransactionResponse.events[3].data.collection_obj.inner,
+        concert_date: showDate,
+      });
 
       // obtain the collection address and stub address
       const collectionAddress = committedTransactionResponse;
       // Once the transaction has been successfully commited to chain, navigate to the `my-collection` page
-      if (committedTransactionResponse.success && committedTransactionStubResponse.success) {
+      if (committedTransactionResponse.success) {
         navigate(`/my-collections`, { replace: true });
       }
     } catch (error) {
