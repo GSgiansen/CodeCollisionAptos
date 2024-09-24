@@ -20,9 +20,9 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 // Entry functions
 import { createCollection } from "@/entry-functions/create_collection";
 // Datetime functions
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import { masterAccounts } from "../constants";
-
+import supabase from "./../main";
 
 export function CreateCollection() {
   // Wallet Adapter provider
@@ -34,9 +34,9 @@ export function CreateCollection() {
   if (import.meta.env.PROD) navigate("/", { replace: true });
 
   // Collection data entered by the user on UI
-  const [collectionName, setCollectionName] = useState<string>('');
-  const [concertDetails, setConcertDetails] = useState<string>('');
-  const [concertType, setConcertType] = useState<string>('');
+  const [collectionName, setCollectionName] = useState<string>("");
+  const [concertDetails, setConcertDetails] = useState<string>("");
+  const [concertType, setConcertType] = useState<string>("");
   const [showDate, setShowDate] = useState<Date>();
   const [showTime, setShowTime] = useState<string>();
   const [pricing, setPricing] = useState<number>();
@@ -58,12 +58,10 @@ export function CreateCollection() {
 
   const [isWalletAccountEqual, setIsWalletAccountEqual] = useState(false);
 
-
-  
   useEffect(() => {
     // Check if the wallet account is equal to the master account
 
-    if (account &&  masterAccounts.find((masterAccount: string) => masterAccount === account.address)) {
+    if (account && masterAccounts.find((masterAccount: string) => masterAccount === account.address)) {
       setIsWalletAccountEqual(true);
     } else {
       setIsWalletAccountEqual(false);
@@ -125,15 +123,10 @@ export function CreateCollection() {
       setIsUploading(true);
 
       // Upload collection files to Irys
-      const { projectUri } = await uploadCollectionData(
-        aptosWallet,
-        files,
-      );
+      const { projectUri } = await uploadCollectionData(aptosWallet, files);
 
       // Format the show time
-      const formattedShowTime = showDate
-      ? format(showDate, 'dd MMM yyyy, HH:mm')
-      : '';
+      const formattedShowTime = showDate ? format(showDate, "dd MMM yyyy, HH:mm") : "";
 
       // Concatenate the description fields
       const collectionDescription = `
@@ -175,35 +168,51 @@ export function CreateCollection() {
         transactionHash: response.hash,
       });
 
-      const stubName = collectionName + " - Stub";
+      // const stubName = collectionName + " - Stub";
 
-      const stubResponse = await signAndSubmitTransaction(
-        createCollection({
-          collectionDescription,
-          collectionName: stubName,
-          projectUri,
-          maxSupply,
-          royaltyPercentage,
-          preMintAmount,
-          allowList: undefined,
-          allowListStartDate: undefined,
-          allowListEndDate: undefined,
-          allowListLimitPerAccount: undefined,
-          allowListFeePerNFT: undefined,
-          publicMintStartDate: allowListStartDate,
-          publicMintEndDate: allowListEndDate,
-          publicMintLimitPerAccount,
-          publicMintFeePerNFT: 0,
-        }),
-      );
+      // const stubResponse = await signAndSubmitTransaction(
+      //   createCollection({
+      //     collectionDescription,
+      //     collectionName: stubName,
+      //     projectUri,
+      //     maxSupply,
+      //     royaltyPercentage,
+      //     preMintAmount,
+      //     allowList: undefined,
+      //     allowListStartDate: undefined,
+      //     allowListEndDate: undefined,
+      //     allowListLimitPerAccount: undefined,
+      //     allowListFeePerNFT: undefined,
+      //     publicMintStartDate: allowListStartDate,
+      //     publicMintEndDate: allowListEndDate,
+      //     publicMintLimitPerAccount,
+      //     publicMintFeePerNFT: 0,
+      //   }),
+      // );
 
-      // Wait for the transaction to be commited to chain
-      const committedTransactionStubResponse = await aptosClient().waitForTransaction({
-        transactionHash: stubResponse.hash,
+      // // Wait for the transaction to be commited to chain
+      // const committedTransactionStubResponse = await aptosClient().waitForTransaction({
+      //   transactionHash: stubResponse.hash,
+      // });
+
+      console.log(committedTransactionResponse);
+      // console.log(committedTransactionStubResponse);
+
+      //update mapping
+      // await updateMapping(
+      //   committedTransactionResponse.events[3].data.collection_obj.inner,
+      //   committedTransactionStubResponse.events[3].data.collection_obj.inner,
+      // );
+
+      await supabase.from("collection_address").insert({
+        collection_address: committedTransactionResponse.events[3].data.collection_obj.inner,
+        concert_date: showDate,
       });
 
+      // obtain the collection address and stub address
+      const collectionAddress = committedTransactionResponse;
       // Once the transaction has been successfully commited to chain, navigate to the `my-collection` page
-      if (committedTransactionResponse.success && committedTransactionStubResponse.success) {
+      if (committedTransactionResponse.success) {
         navigate(`/my-collections`, { replace: true });
       }
     } catch (error) {
@@ -215,11 +224,10 @@ export function CreateCollection() {
 
   return (
     <>
-      {isWalletAccountEqual? 
-      (
-
-      <><Header/>
-        <div className="flex flex-col md:flex-row items-start justify-between px-4 py-2 gap-4 max-w-screen-xl mx-auto">
+      {isWalletAccountEqual ? (
+        <>
+          <Header />
+          <div className="flex flex-col md:flex-row items-start justify-between px-4 py-2 gap-4 max-w-screen-xl mx-auto">
             <div className="w-full md:w-2/3 flex flex-col gap-y-4 order-2 md:order-1">
               {(!account || account.address !== CREATOR_ADDRESS) && (
                 <WarningAlert title={account ? "Wrong account connected" : "No account connected"}>
@@ -262,7 +270,8 @@ export function CreateCollection() {
                       placeholder="Upload Assets"
                       onChange={(event) => {
                         setFiles(event.currentTarget.files);
-                      } } />
+                      }}
+                    />
 
                     {!!files?.length && (
                       <div>
@@ -273,7 +282,7 @@ export function CreateCollection() {
                           onClick={() => {
                             setFiles(null);
                             inputRef.current!.value = "";
-                          } }
+                          }}
                         >
                           Clear
                         </Button>
@@ -293,7 +302,8 @@ export function CreateCollection() {
                   onDateChange={setPublicMintStartDate}
                   time={publicMintStartTime}
                   onTimeChange={onPublicMintStartTime}
-                  className="basis-1/2" />
+                  className="basis-1/2"
+                />
 
                 <DateTimeInput
                   id="mint-end"
@@ -304,7 +314,8 @@ export function CreateCollection() {
                   onDateChange={setPublicMintEndDate}
                   time={publicMintEndTime}
                   onTimeChange={onPublicMintEndTime}
-                  className="basis-1/2" />
+                  className="basis-1/2"
+                />
               </div>
 
               <LabeledInput
@@ -315,8 +326,9 @@ export function CreateCollection() {
                 disabled={isUploading || !account}
                 onChange={(e) => {
                   setCollectionName(e.target.value);
-                } }
-                type="text" />
+                }}
+                type="text"
+              />
 
               <LabeledInput
                 id="concert-details"
@@ -326,8 +338,9 @@ export function CreateCollection() {
                 disabled={isUploading || !account}
                 onChange={(e) => {
                   setConcertDetails(e.target.value);
-                } }
-                type="text" />
+                }}
+                type="text"
+              />
 
               <LabeledInput
                 id="concert-type"
@@ -337,8 +350,9 @@ export function CreateCollection() {
                 disabled={isUploading || !account}
                 onChange={(e) => {
                   setConcertType(e.target.value);
-                } }
-                type="text" />
+                }}
+                type="text"
+              />
 
               <div className="flex item-center gap-4 mt-4">
                 <DateTimeInput
@@ -350,7 +364,8 @@ export function CreateCollection() {
                   onDateChange={setShowDate}
                   time={showTime}
                   onTimeChange={onShowTimeChange}
-                  className="basis-1/2" />
+                  className="basis-1/2"
+                />
               </div>
 
               <LabeledInput
@@ -361,7 +376,8 @@ export function CreateCollection() {
                 disabled={isUploading || !account}
                 onChange={(e) => {
                   setMaxSupply(parseInt(e.target.value));
-                } } />
+                }}
+              />
 
               <LabeledInput
                 id="mint-limit"
@@ -371,7 +387,8 @@ export function CreateCollection() {
                 disabled={isUploading || !account}
                 onChange={(e) => {
                   setPublicMintLimitPerAccount(parseInt(e.target.value));
-                } } />
+                }}
+              />
 
               <LabeledInput
                 id="mint-fee"
@@ -382,30 +399,47 @@ export function CreateCollection() {
                 onChange={(e) => {
                   setPublicMintFeePerNFT(Number(e.target.value));
                   setPricing(Number(e.target.value));
-                } } />
+                }}
+              />
 
               <ConfirmButton
                 title="Add Concert Event"
                 className="self-start"
                 onSubmit={onCreateCollection}
-                disabled={!account ||
+                disabled={
+                  !account ||
                   !files?.length ||
                   !publicMintStartDate ||
                   !publicMintLimitPerAccount ||
                   !account ||
-                  isUploading}
-                confirmMessage={<>
-                  <p>The upload process requires at least 2 message signatures</p>
-                  <ol className="list-decimal list-inside">
-                    <li>To upload collection cover image file and NFT image files into Irys.</li>
+                  isUploading
+                }
+                confirmMessage={
+                  <>
+                    <p>The upload process requires at least 2 message signatures</p>
+                    <ol className="list-decimal list-inside">
+                      <li>To upload collection cover image file and NFT image files into Irys.</li>
 
-                    <li>To upload collection metadata file and NFT metadata files into Irys.</li>
-                  </ol>
-                  <p>In the case we need to fund a node on Irys, a transfer transaction submission is required also.</p>
-                </>} />
+                      <li>To upload collection metadata file and NFT metadata files into Irys.</li>
+                    </ol>
+                    <p>
+                      In the case we need to fund a node on Irys, a transfer transaction submission is required also.
+                    </p>
+                  </>
+                }
+              />
             </div>
-          </div></>) 
-      : (<div>Only the master account can create a concert event</div>)}
+
+            {/* <Button
+              variant="link"
+              className="self-start order-1 md:order-2"
+              onClick={() => }
+            /> */}
+          </div>
+        </>
+      ) : (
+        <div>Only the master account can create a concert event</div>
+      )}
     </>
   );
 }

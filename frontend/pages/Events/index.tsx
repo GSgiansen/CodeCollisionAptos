@@ -5,15 +5,7 @@ import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import { Header } from "@/components/Header";
-import { CAS, TS_ERA } from "./EventType";
-import { ConnectWalletAlert } from "../Mint/components/ConnectWalletAlert";
-import { BannerSection } from "../Mint/components/BannerSection";
-import { FAQSection } from "../Mint/components/FAQSection";
-import { HeroSection } from "../Mint/components/HeroSection";
-import { HowToMintSection } from "../Mint/components/HowToMintSection";
-import { OurStorySection } from "../Mint/components/OurStorySection";
-import { OurTeamSection } from "../Mint/components/OurTeamSection";
-import { StatsSection } from "../Mint/components/StatsSection";
+
 import { MarqueeDemo } from "../../components/HomePage/marquee";
 
 import { Link, useNavigate } from "react-router-dom";
@@ -41,49 +33,40 @@ export function Events() {
 
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(),
-    to: addDays(new Date(), 20),
+    to: addDays(new Date(), 40),
   });
   const [filter, setFilter] = useState<string>("");
 
-  // const events = [
-  //   CAS, TS_ERA
-  // ];
-  // convert events page to use the collections from the collections
+  function convertToUnixTime(dateString: string): number {
+    if (!dateString) {
+      return 0;
+    }
+    // Remove ordinal suffix (st, nd, rd, th) from the day part of the date
+    const formattedDateString = dateString.replace(/(\d{1,2})(st|nd|rd|th)/, '$1');
+    
+    // Try to parse the date using the Date constructor
+    const date = new Date(formattedDateString);
+    
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date string");
+    }
+  
+    // Return the Unix timestamp in seconds
+    return Math.floor(date.getTime() / 1000);
+  }
+  
 
   const events = collections.map((collection) => {
     return {
       id: collection.collection_id,
       name: collection.collection_name,
       image_uri: collection.cdn_asset_uris.cdn_image_uri,
-      eventUnixTime: 1723099309,
+      description: collection?.description ?? config.defaultCollection?.description,
+      datetime: (collection.description ?? "").split('\n').filter(line => line.trim() !== '')[2],
+      eventUnixTime: convertToUnixTime((collection.description ?? "").split('\n').filter(line => line.trim() !== '')[2])
     };
   });
-  const reviews = [
-    {
-      title: "Pig",
-      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-02/pig0924%20horizontal.jpg?w=248&fit=crop&auto=format",
-    },
-    {
-      title: "Jane",
-      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/Featured%20Events%20Banner%20-%20436%20x%20326_1.png?w=248&fit=crop&auto=format",
-    },
-    {
-      title: "Tom",
-      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-06/RELEASE%201%20-%20436x326%20-%20SISTIC%20-%20TKK150%20-%20resize.jpg?w=248&fit=crop&auto=format",
-    },
-    {
-      title: "Spongebob",
-      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/Jane-MBS19-SISTIC-landscape-436x326.jpg?w=248&fit=crop&auto=format",
-    },
-    {
-      title: "Inside Out",
-      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-06/evan1024_V1-436x326.jpg?w=248&fit=crop&auto=format",
-    },
-    {
-      title: "Haha",
-      img: "https://static.sistic.com.sg/sistic/docroot/sites/default/files/2024-08/436x326%20resized.png?w=248&fit=crop&auto=format",
-    },
-  ];
   const filteredEvents = events.filter((event) => {
     const eventDate = new Date(event.eventUnixTime * 1000);
     const isWithinDateRange =
@@ -91,6 +74,7 @@ export function Events() {
     const matchesFilter = event.name.toLowerCase().includes(filter.toLowerCase());
     return isWithinDateRange && matchesFilter;
   });
+
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -117,10 +101,10 @@ export function Events() {
         <h1 className="text-2xl font-bold text-white">Upcoming Concerts</h1>
         <br />
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {reviews.map((card) => (
-            <div key={card.title} className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
-              <img src={card.img} alt={card.title} className="h-32 w-32 object-cover rounded-md mb-4" />
-              <h3 className="text-lg font-medium text-center">{card.title}</h3>
+          {collections.slice(0, 7).map((card) => (
+            <div key={card.collection_name} className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
+              <img src={card.cdn_asset_uris.cdn_image_uri} alt={card.collection_name} className="h-32 w-32 object-cover rounded-md mb-4" />
+              <h3 className="text-lg font-medium text-center">{card.collection_name}</h3>
             </div>
           ))}
         </div>
@@ -158,6 +142,7 @@ export function Events() {
                 <div className="flex flex-col">
                   <div className="text-lg font-semibold">{event.name}</div>
                 </div>
+                
               </Card>
             </Link>
           </motion.div>
