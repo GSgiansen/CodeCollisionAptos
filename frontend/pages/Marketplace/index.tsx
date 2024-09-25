@@ -13,6 +13,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./listingTable/data-table";
 import { columns, MarketplaceTicket } from "./listingTable/columns";
+import { useGetCollectionData } from "@/hooks/useGetCollectionData";
+import { useGetCollections } from "@/hooks/useGetCollections";
+import { GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
 
 type Concert = {
   name: string;
@@ -21,6 +24,26 @@ type Concert = {
   endDateTime: string; // Same as above, `Date` is also an option
   imageUrl: string;
 };
+
+function convertToUnixTime(dateString: string): number {
+  if (!dateString) {
+    return 0;
+  }
+  // Remove ordinal suffix (st, nd, rd, th) from the day part of the date
+  const formattedDateString = dateString.replace(/(\d{1,2})(st|nd|rd|th)/, '$1');
+  
+  // Try to parse the date using the Date constructor
+  const date = new Date(formattedDateString);
+  
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid date string");
+  }
+
+  // Return the Unix timestamp in seconds
+  return Math.floor(date.getTime() / 1000);
+}
+
 
 const Marketplace = () => {
   const [selectedConcert, setSelectedConcert] = useState<Concert | null>(null);
@@ -34,49 +57,19 @@ const Marketplace = () => {
       prev.includes(category) ? prev.filter((cat) => cat !== category) : [...prev, category],
     );
   };
+  const collections: Array<GetCollectionDataResponse> = useGetCollections();
 
   // Example concerts data
-  const concerts: Concert[] = [
-    {
-      name: "Rock the Night",
-      description: "Join us for an electrifying night of rock music with the best bands in town.",
-      startsDateTime: "2024-09-15T20:00:00",
-      endDateTime: "2024-09-17T20:00:00",
-      imageUrl:
-        "https://dynamicmedia.livenationinternational.com/p/d/i/b5f28577-e2d2-476b-b578-b5a2f30d0525.jpeg?format=webp&width=230",
-    },
-    {
-      name: "Jazz & Blues Festival",
-      description: "Experience the smooth sounds of jazz and blues in an outdoor setting.",
-      startsDateTime: "2024-09-22T18:00:00",
-      endDateTime: "2024-09-24T20:00:00",
-      imageUrl: "https://dynamicmedia.livenationinternational.com/y/o/w/65307632-ccaf-491b-b673-a08eaa72eebe.png",
-    },
-    {
-      name: "Pop Extravaganza",
-      description: "A night filled with the latest pop hits and vibrant performances.",
-      startsDateTime: "2024-10-05T19:30:00",
-      endDateTime: "2024-10-10T20:00:00",
-      imageUrl:
-        "https://dynamicmedia.livenationinternational.com/p/d/t/0e9585ab-fc01-4926-895f-d7b2b56848c9.jpg?format=webp&width=230",
-    },
-    {
-      name: "Classical Nights",
-      description: "An elegant evening of classical music performed by world-renowned orchestras.",
-      startsDateTime: "2024-10-12T19:00:00",
-      endDateTime: "2024-10-15T20:00:00",
-      imageUrl:
-        "https://dynamicmedia.livenationinternational.com/h/k/m/bfc22489-98da-4b7b-bde5-2bb84d586222.jpg?format=webp&width=230",
-    },
-    {
-      name: "Country Roads Festival",
-      description: "Get ready for a day of country music, food, and fun in the sun.",
-      startsDateTime: "2024-10-20T16:00:00",
-      endDateTime: "2024-10-30T20:00:00",
-      imageUrl:
-        "https://dynamicmedia.livenationinternational.com/u/n/i/8bbea948-03fc-453e-817a-fb8809685f61.jpg?format=webp&width=230",
-    },
-  ];
+  const concerts: Concert[] = collections.map((collection) => ({
+    id: collection.collection_id,
+    name: collection.collection_name,
+    imageUrl: collection.cdn_asset_uris.cdn_image_uri,
+    description: collection?.description ?? config.defaultCollection?.description,
+    datetime: (collection.description ?? "").split('\n').filter(line => line.trim() !== '')[2],
+    eventUnixTime: convertToUnixTime((collection.description ?? "").split('\n').filter(line => line.trim() !== '')[2]),
+    startsDateTime: (collection.description ?? "").split('\n').filter(line => line.trim() !== '')[2],
+  }));
+
   const tickets: MarketplaceTicket[] = [
     {
       id: "1",
@@ -162,15 +155,17 @@ const Marketplace = () => {
             </div>
             <div className="p-4">
               <h2 className="text-xl font-bold text-gray-900 mb-2">{selectedConcert.name}</h2>
-              <p className="text-gray-700 mb-4">{selectedConcert.description}</p>
+              {selectedConcert.description.split('\n').map((line, index) => (
+  <p key={index} className="text-gray-700 mb-2">
+    {line}
+  </p>
+))}
+
+
               <div className="text-gray-500">
                 <p className="text-sm">
                   Starts: {new Date(selectedConcert.startsDateTime).toLocaleDateString()} at{" "}
                   {new Date(selectedConcert.startsDateTime).toLocaleTimeString()}
-                </p>
-                <p className="text-sm">
-                  Ends: {new Date(selectedConcert.endDateTime).toLocaleDateString()} at{" "}
-                  {new Date(selectedConcert.endDateTime).toLocaleTimeString()}
                 </p>
               </div>
             </div>
