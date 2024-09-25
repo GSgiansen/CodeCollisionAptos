@@ -26,12 +26,13 @@ import { config } from "@/config";
 // Internal entry functions
 import { mintNFT } from "@/entry-functions/mint_nft";
 import { LoadingSpinner } from "./LoadingSpinner";
-
+import { useNavigate } from "react-router-dom"
 interface HeroSectionProps {
   id?: string;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ id }) => {
+  const navigate = useNavigate();
   const { data, isLoading } = useGetCollectionData(id);
   const queryClient = useQueryClient();
   const { account, signAndSubmitTransaction } = useWallet();
@@ -62,7 +63,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ id }) => {
 
   return (
     <>
-        <Button className="h-16 md:h-auto m-5" onClick={() => window.history.back()}>
+        <Button className="h-16 md:h-auto m-5" onClick={() => navigate('/')}>
         Back  
       </Button>
     <section className="hero-container flex flex-col md:flex-row gap-6 px-4 max-w-screen-xl mx-auto w-full">

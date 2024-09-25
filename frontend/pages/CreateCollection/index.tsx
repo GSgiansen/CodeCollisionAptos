@@ -21,8 +21,8 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 import { createCollection } from "@/entry-functions/create_collection";
 // Datetime functions
 import { format } from "date-fns";
-import { masterAccounts } from "../constants";
-import supabase from "./../main";
+import { masterAccounts } from "../../constants";
+import supabase from "../../main";
 
 export function CreateCollection() {
   // Wallet Adapter provider

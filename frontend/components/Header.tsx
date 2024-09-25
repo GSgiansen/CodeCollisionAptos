@@ -12,7 +12,7 @@ export function Header() {
             <Link to="/">Aptos Ticket Master</Link>
           </h1>
           <div className="flex gap-2 items-center ml-auto">
-             (
+             
               <>
                 <Link className="header-link" to="/my-collections">
                   View Concerts
@@ -24,7 +24,7 @@ export function Header() {
                   Contact Us
                 </Link>
               </>
-            )
+            
             <WalletSelector />
           </div>
         </div>
