@@ -12,18 +12,6 @@ import { NETWORK, COLLECTION_ADDRESS } from "@/constants";
 function MyCollections() {
   const collections: Array<GetCollectionDataResponse> = useGetCollections();
 
-  // If we are on Production mode, redierct to the mint page
-  const navigate = useNavigate();
-  if (import.meta.env.PROD) navigate("/", { replace: true });
-
-  const handleCollectionClick = (collectionId: string) => {
-    // Here you set the collection address in your env file
-    localStorage.setItem(COLLECTION_ADDRESS, collectionId);
-
-    // Navigate to the explorer URL with a full page reload
-    window.location.href = "/";
-  };
-
   return (
     <>
       <Header/>
@@ -54,7 +42,6 @@ function MyCollections() {
                       />
                       <a
                         href="#"
-                        onClick={() => handleCollectionClick(collection?.collection_id)}
                         style={{ cursor: "pointer", textDecoration: "underline" }}
                       >
                         {collection?.collection_name}
