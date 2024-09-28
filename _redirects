@@ -1,1 +1,12 @@
-/*    /index.html   200
+# Specific routes based on your React Router configuration
+/create-collection       /index.html   200
+/my-collections          /index.html   200
+/events                  /index.html   200
+/events/:eventId         /index.html   200
+/tickets                 /index.html   200
+/marketplace             /index.html   200
+/distributor             /index.html   200
+/distributor/create      /index.html   200
+
+# Catch-all rule to handle all other client-side routes
+/*                       /index.html   200
