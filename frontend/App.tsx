@@ -1,7 +1,7 @@
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Mint } from "@/pages/Mint";
-import { CreateCollection } from "@/pages/CreateCollection";
-import { MyCollections } from "@/pages/MyCollections";
+import CreateCollection from "./pages/CreateCollection";
+import MyCollections from "./pages/MyCollections";
 import { Events } from "./pages/Events";
 import EventDetail from "./pages/Events/EventDetail";
 import { Tickets } from "./pages/Tickets";

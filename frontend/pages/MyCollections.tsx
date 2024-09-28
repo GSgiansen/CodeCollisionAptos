@@ -9,7 +9,7 @@ import { useGetCollections } from "@/hooks/useGetCollections";
 // Internal constants
 import { NETWORK, COLLECTION_ADDRESS } from "@/constants";
 
-export function MyCollections() {
+function MyCollections() {
   const collections: Array<GetCollectionDataResponse> = useGetCollections();
 
   // If we are on Production mode, redierct to the mint page
@@ -80,3 +80,5 @@ export function MyCollections() {
     </>
   );
 }
+
+export default MyCollections;

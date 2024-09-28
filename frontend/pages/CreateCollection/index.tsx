@@ -24,7 +24,7 @@ import { format } from "date-fns";
 import { masterAccounts } from "../../constants";
 import supabase from "../../main";
 
-export function CreateCollection() {
+function CreateCollection() {
   // Wallet Adapter provider
   const aptosWallet = useWallet();
   const { account, signAndSubmitTransaction } = useWallet();
@@ -443,3 +443,5 @@ export function CreateCollection() {
     </>
   );
 }
+
+export default CreateCollection;
