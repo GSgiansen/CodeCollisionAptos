@@ -6,6 +6,7 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 export default defineConfig({
   build: {
     outDir: "build",
+    chunkSizeWarningLimit: 4000, 
   },
   server: {
     open: true,
