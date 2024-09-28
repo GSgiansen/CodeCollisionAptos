@@ -32,3 +32,6 @@ pnpm-lock.yaml
 
 # template related files
 example-collection/
+
+# Local Netlify folder
+.netlify
