@@ -11,17 +11,16 @@ import { Header } from "./components/Header";
 import DistributorCreateConcert from "./pages/Distributor/Create";
 import React from "react";
 
-function Layout() {
-  return (
-    <>
-      <Outlet />
-    </>
-  );
-}
+// function Layout() {
+//   return (
+//     <>
+//       <Outlet />
+//     </>
+//   );
+// }
 
 const router = createBrowserRouter([
   {
-    element: <Layout />,
     children: [
       {
         path: "/",
