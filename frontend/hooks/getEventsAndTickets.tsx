@@ -1,105 +1,140 @@
 // @ts-nocheck
 import { AccountAddress } from "@aptos-labs/ts-sdk";
-import { useState, useEffect } from "react";
 import { aptosClient } from "@/utils/aptosClient";
 import { WalletContextState } from "@aptos-labs/wallet-adapter-react";
+
 /**
- * A react hook to get all events created by main account.
- *
- * This call can be pretty expensive when fetching a big number of collections,
- * therefore it is not recommended to use it in production
- *
+ * A function to fetch events and tickets related to the specific events.
+ * Fetches events first, then filters tickets based on the events.
  */
 export async function getEventsAndTickets(wallet: WalletContextState) {
-  // const [events, setEvents] = useState<Array<Event>>([]);
-  // const [tickets, setTickets] = useState<Array<Ticket>>([]);
+  try {
+    // Fetch the contract registry address
+    const registry = await getRegistry();
 
-  // useEffect(() => {
-    // async function run() {
-      // fetch the contract registry address
-      const registry = await getRegistry();
-      // fetch collections objects created under that contract registry address
-      const objects = await getObjects(registry);
-      // get each collection object data
-      const events = await getEvents(objects);
-      // setEvents(events);
+    // Fetch collection objects created under that contract registry address
+    const objects = await getObjects(registry);
 
-      const tickets = await getTickets(events, wallet);
-      // setTickets(tickets)
-    // }
+    // Get each collection object data (events)
+    const events = await getEvents(objects);
 
-  //   run();
-  // }, []);
+    // Fetch tickets only for the events presented
+    const tickets = await getTicketsForEvents(events, wallet);
 
-  return {events, tickets};
+    return { events, tickets }; // Return both events and filtered tickets
+  } catch (error) {
+    console.error("Error fetching events and tickets:", error);
+    return { events: [], tickets: [] }; // Return empty arrays in case of error
+  }
 }
 
+// Helper function to fetch the registry data
 const getRegistry = async () => {
-  const registry = await aptosClient().view<[[{ inner: string }]]>({
-    payload: {
-      function: `${AccountAddress.from(import.meta.env.VITE_MODULE_ADDRESS)}::launchpad::get_registry`,
-    },
-  });
-  return registry[0];
+  try {
+    const registry = await aptosClient().view<[[{ inner: string }]]>({
+      payload: {
+        function: `${AccountAddress.from(import.meta.env.VITE_MODULE_ADDRESS)}::launchpad::get_registry`,
+      },
+    });
+    return registry[0]; // Return the first registry
+  } catch (error) {
+    console.error("Error fetching registry:", error);
+    throw error;
+  }
 };
 
+// Helper function to fetch objects based on the registry
 const getObjects = async (registry: [{ inner: string }]) => {
-  const objects = await Promise.all(
-    registry.map(async (register: { inner: string }) => {
-      const formattedRegistry = AccountAddress.from(register.inner).toString();
-      const object = await aptosClient().getObjectDataByObjectAddress({
-        objectAddress: formattedRegistry,
-      });
+  try {
+    const objects = await Promise.all(
+      registry.map(async (register: { inner: string }) => {
+        const formattedRegistry = AccountAddress.from(register.inner).toString();
+        const object = await aptosClient().getObjectDataByObjectAddress({
+          objectAddress: formattedRegistry,
+        });
 
-      return object.owner_address;
-    }),
-  );
-  return objects;
+        return object.owner_address;
+      })
+    );
+    return objects;
+  } catch (error) {
+    console.error("Error fetching objects:", error);
+    throw error;
+  }
 };
 
+// Helper function to fetch event data based on objects
 const getEvents = async (objects: Array<string>) => {
-  const events = await Promise.all(
-    objects.map(async (object: string) => {
-      const formattedObjectAddress = AccountAddress.from(object).toString();
-      const collection = await aptosClient().getCollectionDataByCreatorAddress({
-        creatorAddress: formattedObjectAddress,
-      });
+  try {
+    const events = await Promise.all(
+      objects.map(async (object: string) => {
+        const formattedObjectAddress = AccountAddress.from(object).toString();
+        const collection = await aptosClient().getCollectionDataByCreatorAddress({
+          creatorAddress: formattedObjectAddress,
+        });
 
-      const event: Event = {
-        name: collection.collection_name,
-        description: collection.description,
-        id: collection.collection_id,
-        image_uri: collection.cdn_asset_uris!.cdn_animation_uri!,
-        creator_addr: collection.creator_address,
-        current_supply: collection.current_supply,
-        max_supply: collection.max_supply,
-      };
+        const event: Event = {
+          name: collection.collection_name,
+          description: collection.description,
+          id: collection.collection_id,
+          image_uri: collection.cdn_asset_uris?.cdn_animation_uri || "",
+          creator_addr: collection.creator_address,
+          current_supply: collection.current_supply,
+          max_supply: collection.max_supply,
+          creator_address: collection.creator_address,
+          collection_id: collection.collection_id,
+          collection_name: collection.collection_name,
+          cdn_asset_uris: collection.cdn_asset_uris || {},
+        };
 
-      return event;
-    }),
-  );
-  
-  return events;
+        return event;
+      })
+    );
+    return events;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
 };
 
-const getTickets = async (events: Event[], wallet: WalletContextState) => {
-  const tokens = await aptosClient().getOwnedDigitalAssets({
-    ownerAddress: wallet.account!.address,
-  });
-  const events_id = events.map((event) => event.id);
-  const filteredTokens = tokens.filter((token) => events_id.includes(token.current_token_data!.collection_id));
-  const tickets = filteredTokens.map((token) => {
-    return {
-      event_id: token.current_token_data!.collection_id,
-      event_name: token.current_token_data!.current_collection!.collection_name,
-      id: token.token_data_id,
-      owner: token.owner_address,
-      uri: token.current_token_data!.token_uri,
-    };
-  });
+// Helper function to fetch tickets based on events
+const getTicketsForEvents = async (events: Event[], wallet: WalletContextState) => {
+  const account = wallet?.account;
 
-  return tickets;
-}
+  if (!account || !account.address) {
+    console.error("Wallet is not connected or account is unavailable.");
+    return [];
+  }
+
+  try {
+    // Fetch all tokens owned by the wallet address
+    const tokens = await aptosClient().getOwnedDigitalAssets({
+      ownerAddress: account.address,
+    });
+
+    // Extract the event IDs from the events
+    const eventIds = events.map(event => event.id);
+
+    // Filter tickets based on event IDs
+    const filteredTokens = tokens.filter(token => eventIds.includes(token.current_token_data!.collection_id));
+
+    // Map the filtered tokens into Ticket objects
+    const tickets = filteredTokens.map((token) => {
+      return {
+        event_id: token.current_token_data!.collection_id,
+        event_name: token.current_token_data!.current_collection!.collection_name,
+        id: token.token_data_id,
+        owner: token.owner_address,
+        uri: token.current_token_data!.token_uri,
+      };
+    });
+
+    return tickets;
+  } catch (error) {
+    console.error("Error fetching tickets for events:", error);
+    throw error;
+  }
+};
 
 export type Ticket = {
   event_id: string;
@@ -108,21 +143,20 @@ export type Ticket = {
   owner: string;
   uri: string;
 };
-  
+
 export type Event = {
-    name: string;
-    description: string;
-    id: string;
-    uri: string;
-    creator_addr: string;
-    current_supply: number;
-    max_supply: number;
-    creator_address: string;
-    collection_id: string;
-    collection_name: string;
-    cdn_asset_uris: {
-      cdn_animation_uri: string;
-      cdn_image_uri: string;
-    };
-    
+  name: string;
+  description: string;
+  id: string;
+  uri: string;
+  creator_addr: string;
+  current_supply: number;
+  max_supply: number;
+  creator_address: string;
+  collection_id: string;
+  collection_name: string;
+  cdn_asset_uris: {
+    cdn_animation_uri: string;
+    cdn_image_uri: string;
+  };
 };
