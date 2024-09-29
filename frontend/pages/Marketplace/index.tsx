@@ -142,7 +142,6 @@ const Marketplace = () => {
 
   return (
     <>
-      <Header />
       <div className="flex flex-col gap-4">
         {selectedConcert ? (
           <div className="bg-white border border-gray-300 rounded-lg shadow-lg overflow-hidden mx-auto w-3/4 max-w-md">

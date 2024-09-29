@@ -69,7 +69,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ id }) => {
     <section className="hero-container flex flex-col md:flex-row gap-6 px-4 max-w-screen-xl mx-auto w-full">
 
       <Image
-        src={collection?.cdn_asset_uris.cdn_image_uri ?? collection?.cdn_asset_uris.cdn_animation_uri ?? Placeholder1}
+        src={collection?.cdn_asset_uris?.cdn_image_uri ?? collection?.cdn_asset_uris?.cdn_animation_uri ?? Placeholder1}
         rounded
         style={{
           width: '300px',
