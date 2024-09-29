@@ -15,6 +15,7 @@ import { GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
 import { useGetCollections } from "@/hooks/useGetCollections";
 // Internal constants
 import { NETWORK, COLLECTION_ADDRESS } from "@/constants";
+import bear1 from "@/assets/placeholders/bear-1.png";
 
 export function Events() {
   const collections: Array<GetCollectionDataResponse> = useGetCollections();
@@ -61,7 +62,7 @@ export function Events() {
     return {
       id: collection.collection_id,
       name: collection.collection_name,
-      image_uri: collection.cdn_asset_uris.cdn_image_uri,
+      image_uri: collection.cdn_asset_uris?.cdn_image_uri || bear1,
       description: collection?.description ?? config.defaultCollection?.description,
       datetime: (collection.description ?? "").split('\n').filter(line => line.trim() !== '')[2],
       eventUnixTime: convertToUnixTime((collection.description ?? "").split('\n').filter(line => line.trim() !== '')[2])
@@ -95,7 +96,6 @@ export function Events() {
 
   return (
     <div className="flex items-center justify-between px-4 max-w-screen-xl mx-auto w-full flex-wrap">
-      <Header />
       <MarqueeDemo />
       <div className="bg-blue-500 p-8 w-full">
         <h1 className="text-2xl font-bold text-white">Upcoming Concerts</h1>
@@ -103,7 +103,7 @@ export function Events() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {collections.slice(0, 7).map((card) => (
             <div key={card.collection_name} className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
-              <img src={card.cdn_asset_uris.cdn_image_uri} alt={card.collection_name} className="h-32 w-32 object-cover rounded-md mb-4" />
+              <img src={card.cdn_asset_uris?.cdn_image_uri || bear1} alt={card.collection_name} className="h-32 w-32 object-cover rounded-md mb-4" />
               <h3 className="text-lg font-medium text-center">{card.collection_name}</h3>
             </div>
           ))}
@@ -134,7 +134,7 @@ export function Events() {
               className="block p-4"
             >
               <Card className="flex flex-row gap-4 p-4 items-center hover:bg-gray-100 transition-colors duration-200">
-                <img src={event.image_uri} alt={event.name} className="w-64 h-64 object-cover rounded-lg" />
+                <img src={event.image_uri || bear1} alt={event.name} className="w-64 h-64 object-cover rounded-lg" />
                 <div className="text-4xl font-bold text-gray-700">
                   {format(new Date(event.eventUnixTime * 1000), "MMM dd, yyyy")}
                   <div className="text-lg font-normal">{format(new Date(event.eventUnixTime * 1000), "HH:mm")}</div>

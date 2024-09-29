@@ -4,6 +4,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { GetCollectionDataResponse } from "@aptos-labs/ts-sdk";
 import { useGetCollections } from "@/hooks/useGetCollections";
+import bear1 from "@/assets/placeholders/bear-1.png";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -51,12 +52,12 @@ export function MarqueeDemo() {
     <div className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background md:shadow-xl">
       <Marquee pauseOnHover className="[--duration:30s]">
         {firstRow.map((review) => (
-          <ReviewCard img={review.cdn_asset_uris.cdn_image_uri} key={review.collection_id} {...review} />
+          <ReviewCard img={review?.cdn_asset_uris?.cdn_image_uri || bear1} key={review.collection_id} {...review} />
         ))}
       </Marquee>
       <Marquee reverse pauseOnHover className="[--duration:30s]">
         {secondRow.map((review) => (
-          <ReviewCard img={review.cdn_asset_uris.cdn_image_uri} key={review.collection_id} {...review} />
+          <ReviewCard img={review?.cdn_asset_uris?.cdn_image_uri || bear1} key={review.collection_id} {...review} />
         ))}
       </Marquee>
       <div className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white dark:from-background"></div>

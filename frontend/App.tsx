@@ -11,18 +11,20 @@ import { Header } from "./components/Header";
 import DistributorCreateConcert from "./pages/Distributor/Create";
 import React from "react";
 
-// function Layout() {
-//   return (
-//     <>
-//       <Outlet />
-//     </>
-//   );
-// }
+function Layout() {
+  return (
+    <>
+      <Header />
+      <main><Outlet /></main>
+    </>
+  );
+}
 
 
 
 const router = createBrowserRouter([
   {
+    element: <Layout />,
     children: [
       {
         path: "/",
